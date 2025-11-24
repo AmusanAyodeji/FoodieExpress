@@ -42,6 +42,9 @@ def get_user(email: EmailStr):
     conn, cur = init_db_connection()
     cur.execute("SELECT * FROM users WHERE email = %s",(email,))
     user = cur.fetchone()
+    if not user:
+        close_db_connection(conn, cur)
+        return None
     user = User(id=user[0],full_name=user[1],email=user[2],role=user[4],hashed_password=user[3])
     close_db_connection(conn, cur)
     return user
@@ -102,3 +105,15 @@ async def login_for_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
+
+@app.post("/signup")
+def signup(user_data: UserCreate):
+    conn, cur = init_db_connection()
+    cur.execute("INSERT INTO users(full_name, email, hashed_password, role) VALUES(%s, %s, %s, %s)",(user_data.full_name, user_data.email, get_password_hash(user_data.password), user_data.role))
+    conn.commit()
+    close_db_connection(conn,cur)
+    return {"message":"User Signup Successful"}
+
+@app.get("/me")
+def get_me(current_user: Annotated[User, Depends(get_current_user)]):
+    return {"data":current_user}
