@@ -7,7 +7,7 @@ load_dotenv()
 USER = os.getenv("user")
 PASSWORD = os.getenv("password")
 HOST = os.getenv("host")
-PORT = os.getenv("port")
+DBPORT = os.getenv("port")
 DBNAME = os.getenv("dbname")
 
 def init_db_connection():
@@ -16,7 +16,7 @@ def init_db_connection():
             user=USER,
             password=PASSWORD,
             host=HOST,
-            port=PORT,
+            port=DBPORT,
             dbname=DBNAME
         )
         cursor = connection.cursor()
